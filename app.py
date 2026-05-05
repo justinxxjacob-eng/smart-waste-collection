@@ -713,7 +713,7 @@ def collector_dashboard():
         """, (a['zone_name'],)).fetchall()
         zone_residents[a['zone_id']] = [dict(r) for r in residents]
     
-          rl = conn.execute("""
+    rl = conn.execute("""
         SELECT cl.*, z.zone_name, u.name as resident_name
         FROM collection_logs cl 
         JOIN zones z ON cl.zone_id = z.zone_id
