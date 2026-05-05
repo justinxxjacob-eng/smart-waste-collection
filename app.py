@@ -14,6 +14,14 @@ import math
 from datetime import datetime, timedelta
 from functools import wraps
 
+# Force Philippine timezone for the entire application
+os.environ['TZ'] = 'Asia/Manila'
+try:
+    import time
+    time.tzset()
+except:
+    pass
+
 app = Flask(__name__)
 app.secret_key = 'barangay_waste_secret_2024'
 DATABASE = 'barangay_waste.db'
