@@ -765,8 +765,8 @@ def log_collection():
     hh = conn.execute("SELECT household_id FROM households WHERE user_id=?", (user_id,)).fetchone() if user_id else None
     hid = hh['household_id'] if hh else None
     
-    # Philippine time (UTC+8)
-    ph_time = datetime.now() + timedelta(hours=8)
+        # Philippine time (UTC+8)
+    ph_time = datetime.utcnow() + timedelta(hours=8)
     
     conn.execute("""
         INSERT INTO collection_logs 
