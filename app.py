@@ -799,17 +799,20 @@ def log_collection():
     hh = conn.execute("SELECT household_id FROM households WHERE user_id=?", (user_id,)).fetchone() if user_id else None
     hid = hh['household_id'] if hh else None
     
+    # Philippine time (UTC+8)
+    ph_time = datetime.now() + timedelta(hours=8)
+    
     conn.execute("""
         INSERT INTO collection_logs 
         (schedule_id, collector_id, zone_id, household_id, user_id, status, remarks, bin_count, bin_type, fill_level, collected_at) 
         VALUES (?,?,?,?,?,?,?,?,?,?,?)
-    """, (sid, cid, zone_id, hid, user_id, status, remarks, bc, bt, fl, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+    """, (sid, cid, zone_id, hid, user_id, status, remarks, bc, bt, fl, ph_time.strftime('%Y-%m-%d %H:%M:%S')))
     
     conn.execute("""
         INSERT INTO waste_data 
         (zone_id, date, waste_volume, collection_status, bin_count, bin_type, fill_level) 
         VALUES (?,?,?,?,?,?,?)
-    """, (zone_id, datetime.now().strftime('%Y-%m-%d'), ev, status, bc, bt, fl))
+    """, (zone_id, ph_time.strftime('%Y-%m-%d'), ev, status, bc, bt, fl))
     
     conn.commit()
     conn.close()
