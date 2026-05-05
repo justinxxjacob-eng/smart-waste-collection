@@ -306,40 +306,6 @@ def init_db():
                 rows.append((z, d.strftime('%Y-%m-%d'), round(vol,2), st, eb, p['bt'], 'full'))
         c.executemany("INSERT INTO waste_data (zone_id,date,waste_volume,collection_status,bin_count,bin_type,fill_level) VALUES (?,?,?,?,?,?,?)", rows)
 
-    # Seed collection logs
-    c.execute("SELECT COUNT(*) FROM collection_logs")
-    if c.fetchone()[0] == 0:
-        cid = c.execute("SELECT user_id FROM users WHERE role='collector' LIMIT 1").fetchone()[0]
-        residents = c.execute("""
-            SELECT u.user_id, h.household_id, h.barangay_zone, z.zone_id
-            FROM users u 
-            JOIN households h ON u.user_id = h.user_id
-            JOIN zones z ON h.barangay_zone = z.zone_name
-            WHERE u.role='resident'
-        """).fetchall()
-        
-        sts_all = ['collected','collected','collected','missed','delayed']
-        bts = ['medium_drum','large_drum','small_drum','medium_bag','large_bag']
-        fls = ['full','mostly','half','quarter','overflow']
-        rows = []
-        
-        for day in range(30):
-            d = datetime.now() - timedelta(days=day)
-            for res in residents:
-                rows.append((
-                    res['zone_id'], cid, res['zone_id'], 
-                    res['household_id'], res['user_id'],
-                    random.choice(sts_all), 'Manual log', 
-                    random.randint(1,6), random.choice(bts), random.choice(fls), 
-                    d.strftime('%Y-%m-%d %H:%M:%S')
-                ))
-        
-        c.executemany("""
-            INSERT INTO collection_logs 
-            (schedule_id, collector_id, zone_id, household_id, user_id, status, remarks, bin_count, bin_type, fill_level, collected_at) 
-            VALUES (?,?,?,?,?,?,?,?,?,?,?)
-        """, rows)
-
     # Seed notifications
     c.execute("SELECT COUNT(*) FROM notifications")
     if c.fetchone()[0] == 0:
