@@ -458,6 +458,28 @@ def register():
         form_data = {'name':name,'email':email,'contact':contact,'address':address,'zone':zone}
         errors = get_validation_errors_register(name, email, password, contact, confirm_password)
         
+        # ─── NEW: Full name validation ───
+        if name:
+            name_parts = name.strip().split()
+            if len(name_parts) < 2:
+                errors.append('Please enter your full name (first name and last name).')
+        # ─── END full name validation ───
+        
+        # ─── NEW: Address must contain purok ───
+        if address:
+            addr_lower = address.lower()
+            purok_names = ['mahogany', 'san francisco', 'gmelina', 'arbor', 'narra', 'lemon', 'dunggon']
+            purok_found = any(purok in addr_lower for purok in purok_names)
+            if not purok_found:
+                errors.append('Your address must include your purok (e.g., Mahogany, San Francisco, Gmelina, Arbor, Narra, Lemon, or Dunggon).')
+        # ─── END purok validation ───
+        
+        # ─── NEW: Address first letter must be uppercase ───
+        if address:
+            if address[0].islower():
+                errors.append('The first letter of your address must be uppercase.')
+        # ─── END uppercase validation ───
+        
         if address:
             addr_lower = address.lower()
             if 'magsaysay' not in addr_lower:
