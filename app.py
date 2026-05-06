@@ -82,12 +82,18 @@ def is_valid_contact(contact):
         return False
     # Get the last 9 digits
     digits = cleaned[-9:]
-    # Reject if all digits are the same (e.g., 999999999, 000000000, 888888888)
+    # Reject if all digits are the same (e.g., 999999999, 000000000)
     if len(set(digits)) == 1:
         return False
-    # Reject if sequential (e.g., 123456789)
+    # Reject if sequential (e.g., 123456789, 987654321)
     if digits in ['123456789', '987654321', '012345678', '876543210']:
         return False
+    # Reject if too many consecutive same digits (e.g., 999888857 has 999 and 888)
+    import itertools
+    for key, group in itertools.groupby(digits):
+        count = len(list(group))
+        if count >= 3:  # 3 or more same digits in a row
+            return False
     return True
 
 def get_validation_errors_register(name, email, password, contact, confirm_password=None):
