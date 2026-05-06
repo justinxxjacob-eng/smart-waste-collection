@@ -764,9 +764,17 @@ def collector_dashboard():
             SELECT u.user_id, u.name, h.address, h.household_id
             FROM users u 
             JOIN households h ON u.user_id = h.user_id
-            WHERE u.role='resident' AND h.barangay_zone = ?
+            WHERE u.role='resident' 
+            AND h.barangay_zone = ?
+            AND u.user_id NOT IN (
+                SELECT cl.user_id 
+                FROM collection_logs cl 
+                WHERE cl.zone_id = ? 
+                AND date(cl.collected_at) = date('now')
+                AND cl.status IN ('collected', 'delayed')
+            )
             ORDER BY u.name
-        """, (a['zone_name'],)).fetchall()
+        """, (a['zone_name'], a['zone_id'])).fetchall()
         zone_residents[a['zone_id']] = [dict(r) for r in residents]
     
     rl = conn.execute("""
@@ -799,7 +807,7 @@ def collector_dashboard():
     return render_template_string(COLLECTOR_HTML, assigned=assigned, all_zones=all_zones, 
                                   recent_logs=rl, stats=st, today=today, 
                                   zone_predictions=zone_predictions, zone_residents=zone_residents)
-
+    
 @app.route('/collector/log', methods=['POST'])
 @login_required
 @role_required('collector')
