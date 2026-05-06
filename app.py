@@ -78,7 +78,17 @@ def is_valid_contact(contact):
     if not contact:
         return True
     cleaned = re.sub(r'[\s\-]', '', contact)
-    return bool(re.match(r'^(09|\+639)\d{9}$', cleaned))
+    if not re.match(r'^(09|\+639)\d{9}$', cleaned):
+        return False
+    # Get the last 9 digits
+    digits = cleaned[-9:]
+    # Reject if all digits are the same (e.g., 999999999, 000000000, 888888888)
+    if len(set(digits)) == 1:
+        return False
+    # Reject if sequential (e.g., 123456789)
+    if digits in ['123456789', '987654321', '012345678', '876543210']:
+        return False
+    return True
 
 def get_validation_errors_register(name, email, password, contact, confirm_password=None):
     errors = []
