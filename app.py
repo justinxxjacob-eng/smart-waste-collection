@@ -458,28 +458,26 @@ def register():
         form_data = {'name':name,'email':email,'contact':contact,'address':address,'zone':zone}
         errors = get_validation_errors_register(name, email, password, contact, confirm_password)
         
-        # ─── NEW: Full name validation ───
+        # Full name validation
         if name:
             name_parts = name.strip().split()
             if len(name_parts) < 2:
                 errors.append('Please enter your full name (first name and last name).')
-        # ─── END full name validation ───
         
-        # ─── NEW: Address must contain purok ───
+        # Address must contain purok
         if address:
-            addr_lower = address.lower()
+            addr_lower_check = address.lower()
             purok_names = ['mahogany', 'san francisco', 'gmelina', 'arbor', 'narra', 'lemon', 'dunggon']
-            purok_found = any(purok in addr_lower for purok in purok_names)
+            purok_found = any(purok in addr_lower_check for purok in purok_names)
             if not purok_found:
                 errors.append('Your address must include your purok (e.g., Mahogany, San Francisco, Gmelina, Arbor, Narra, Lemon, or Dunggon).')
-        # ─── END purok validation ───
         
-        # ─── NEW: Address first letter must be uppercase ───
+        # Address first letter must be uppercase
         if address:
             if address[0].islower():
                 errors.append('The first letter of your address must be uppercase.')
-        # ─── END uppercase validation ───
         
+        # Address validation for Magsaysay and Zamboanga
         if address:
             addr_lower = address.lower()
             if 'magsaysay' not in addr_lower:
@@ -521,7 +519,7 @@ def register():
     zones = conn.execute("SELECT zone_name FROM zones").fetchall()
     conn.close()
     return render_template_string(REGISTER_HTML, errors=errors, success=success, zones=zones, form_data=form_data)
-
+    
 @app.route('/dashboard')
 @login_required
 def dashboard():
